@@ -1,0 +1,42 @@
+services:
+  frontend:
+    build: ./frontend
+    volumes:
+      - /app/node_modules  # use this folder from image (should go before)
+      - ./frontend:/app  # map this folder to container
+    restart: always
+    ports:
+      - '3333:3333'
+  api:
+    build: ./api
+    restart: always
+    ports:
+      - '5555:5000'
+    depends_on:
+      - mysql
+    volumes:
+      - /app/node_modules  # use this folder from image (should go before)
+      - ./api:/app  # map this folder to container
+    environment:
+      MYSQL_HOST: mysql # can use external host
+      MYSQL_USER: root
+      MYSQL_PORT: '3306'
+      MYSQL_PASSWORD: password
+      MYSQL_DB: time_db
+
+  mysql:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: time_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - '8888:8080'
+
+volumes:
+  mysql_data:
